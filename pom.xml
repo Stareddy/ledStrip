@@ -8,12 +8,6 @@
     <artifactId>led_strip</artifactId>
     <version>1.0-SNAPSHOT</version>
 
-    <scm>
-        <url>https://github.com/Stareddy/led_strip</url>
-        <connection>scm:git:git://github.com/Stareddy/led_strip.git</connection>
-        <developerConnection>scm:git:git@github.com:Stareddy/led_strip.git</developerConnection>
-    </scm>
-
     <properties>
         <maven.compiler.source>1.6</maven.compiler.source>
         <maven.compiler.target>1.6</maven.compiler.target>

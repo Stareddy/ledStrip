@@ -23,8 +23,8 @@
       <file pinned="false" current-in-tab="true">
         <entry file="file://$PROJECT_DIR$/pom.xml">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="225">
-              <caret line="15" lean-forward="true" selection-start-line="15" selection-end-line="15" />
+            <state relative-caret-position="150">
+              <caret line="10" selection-start-line="10" selection-end-line="10" />
             </state>
           </provider>
         </entry>
@@ -122,42 +122,6 @@
             <path>
               <item name="led_strip" type="b2602c69:ProjectViewProjectNode" />
               <item name="led_strip" type="462c0819:PsiDirectoryNode" />
-            </path>
-            <path>
-              <item name="led_strip" type="b2602c69:ProjectViewProjectNode" />
-              <item name="led_strip" type="462c0819:PsiDirectoryNode" />
-              <item name="out" type="462c0819:PsiDirectoryNode" />
-            </path>
-            <path>
-              <item name="led_strip" type="b2602c69:ProjectViewProjectNode" />
-              <item name="led_strip" type="462c0819:PsiDirectoryNode" />
-              <item name="out" type="462c0819:PsiDirectoryNode" />
-              <item name="artifacts" type="462c0819:PsiDirectoryNode" />
-            </path>
-            <path>
-              <item name="led_strip" type="b2602c69:ProjectViewProjectNode" />
-              <item name="led_strip" type="462c0819:PsiDirectoryNode" />
-              <item name="out" type="462c0819:PsiDirectoryNode" />
-              <item name="artifacts" type="462c0819:PsiDirectoryNode" />
-              <item name="led_strip_jar" type="462c0819:PsiDirectoryNode" />
-            </path>
-            <path>
-              <item name="led_strip" type="b2602c69:ProjectViewProjectNode" />
-              <item name="led_strip" type="462c0819:PsiDirectoryNode" />
-              <item name="src" type="462c0819:PsiDirectoryNode" />
-            </path>
-            <path>
-              <item name="led_strip" type="b2602c69:ProjectViewProjectNode" />
-              <item name="led_strip" type="462c0819:PsiDirectoryNode" />
-              <item name="src" type="462c0819:PsiDirectoryNode" />
-              <item name="main" type="462c0819:PsiDirectoryNode" />
-            </path>
-            <path>
-              <item name="led_strip" type="b2602c69:ProjectViewProjectNode" />
-              <item name="led_strip" type="462c0819:PsiDirectoryNode" />
-              <item name="src" type="462c0819:PsiDirectoryNode" />
-              <item name="main" type="462c0819:PsiDirectoryNode" />
-              <item name="java" type="462c0819:PsiDirectoryNode" />
             </path>
             <path>
               <item name="led_strip" type="b2602c69:ProjectViewProjectNode" />
@@ -342,8 +306,8 @@
     </entry>
     <entry file="file://$PROJECT_DIR$/pom.xml">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="225">
-          <caret line="15" lean-forward="true" selection-start-line="15" selection-end-line="15" />
+        <state relative-caret-position="150">
+          <caret line="10" selection-start-line="10" selection-end-line="10" />
         </state>
       </provider>
     </entry>
