@@ -4,7 +4,6 @@ import com.pi4j.io.gpio.event.GpioPinListenerDigital;
 
 import java.io.IOException;
 import java.sql.Connection;
-import java.sql.DriverManager;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 
@@ -17,7 +16,14 @@ public class Starter {
 
         SimpleDateFormat sdf = new SimpleDateFormat("HH");
 
+        final boolean[] flag = {false};
+
         final int currentHour = Integer.parseInt(sdf.format(new Date()));
+
+        final boolean lateNight = currentHour >= 20 && currentHour <= 23;
+
+        final boolean earlyMorning = currentHour == 4 || currentHour == 5;
+
 
 
 //        Class.forName("com.mysql.jdbc.Driver");
@@ -34,38 +40,20 @@ public class Starter {
         upperMovingSensor.setShutdownOptions(true);
 
         // create and register gpio pin listener
+
         upperMovingSensor.addListener(new GpioPinListenerDigital() {
             @Override
             public void handleGpioPinDigitalStateChangeEvent(GpioPinDigitalStateChangeEvent event) {
                 // display pin state on console
                 System.out.println(" --> GPIO PIN STATE CHANGE: " + event.getPin() + " = " + event.getState());
-                if (event.getState().equals(PinState.HIGH) && currentHour <= 5 || currentHour >= 21){
+                System.out.println("boolean: --> " + flag[0]);
+                if (event.getState().equals(PinState.HIGH) && !flag[0] && (earlyMorning || lateNight)){
+                    flag[0] = true;
+                    System.out.println("Upstairs - Sensor is on");
                     try {
-                        Process p = Runtime.getRuntime().exec("python relais.py");
-                    } catch (IOException e) {
-                        e.printStackTrace();
-                    }
-                }
-            }
-
-        });
-
-        final GpioPinDigitalInput lowerMovingSensor = gpio.provisionDigitalInputPin(RaspiPin.GPIO_03, PinPullResistance.PULL_DOWN);
-
-        // set shutdown state for this input pin
-        lowerMovingSensor.setShutdownOptions(true);
-
-        // create and register gpio pin listener
-        lowerMovingSensor.addListener(new GpioPinListenerDigital() {
-            @Override
-            public void handleGpioPinDigitalStateChangeEvent(GpioPinDigitalStateChangeEvent event) {
-                // display pin state on console
-                System.out.println(" --> GPIO PIN STATE CHANGE: " + event.getPin() + " = " + event.getState());
-                if (event.getState().equals(PinState.HIGH)){
-                    try {
-                        Runtime.getRuntime().exec("python relais.py");
-                        Thread.sleep(500);
-                        Runtime.getRuntime().exec("python relais2.py");
+                        Process p = Runtime.getRuntime().exec("python relay_from_upstairs.py");
+                        p.waitFor();
+                        flag[0] = false;
                     } catch (IOException e) {
                         e.printStackTrace();
                     } catch (InterruptedException e) {
@@ -76,11 +64,38 @@ public class Starter {
 
         });
 
+        final GpioPinDigitalInput lowerMovingSensor = gpio.provisionDigitalInputPin(RaspiPin.GPIO_07, PinPullResistance.PULL_DOWN);
+
+        // set shutdown state for this input pin
+        lowerMovingSensor.setShutdownOptions(true);
+
+        lowerMovingSensor.addListener(new GpioPinListenerDigital() {
+            @Override
+            public void handleGpioPinDigitalStateChangeEvent (GpioPinDigitalStateChangeEvent event){
+                // display pin state on console
+                System.out.println(" --> GPIO PIN STATE CHANGE: " + event.getPin() + " = " + event.getState());
+                System.out.println("boolean: --> " + flag[0]);
+                if (event.getState().equals(PinState.HIGH) && !flag[0] && (earlyMorning || lateNight)) {
+                    flag[0] = true;
+                    System.out.println("Downstairs - Sensor is on");
+                    try {
+                        Process p = Runtime.getRuntime().exec("python relay_from_downstairs.py");
+                        p.waitFor();
+                        flag[0] = false;
+                    } catch (IOException e) {
+                        e.printStackTrace();
+                    } catch (InterruptedException e) {
+                        e.printStackTrace();
+                    }
+                }
+            }
+        });
+
         System.out.println(" ... complete the GPIO #02 circuit and see the listener feedback here in the console.");
 
         // keep program running until user aborts (CTRL-C)
         while(true) {
-            Thread.sleep(500);
+            Thread.sleep(1000);
         }
 
     }
