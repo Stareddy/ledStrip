@@ -33,12 +33,12 @@ public class Starter {
         while (true) {
             if (isEarlyMorning() || isLateNight()) {
                 try {
-                    long distanceFromUpperSensor = getDistanceFromSensor(upstairsSensorTriggerPin, upstairsSensorEchoPin);
+                    long distanceFromUpperSensor = getDistanceFromSensor(upstairsSensorTriggerPin, upstairsSensorEchoPin, getCurrentMinute(), "upstairs");
 
                     if (distanceFromUpperSensor <= getUpperDistance() && !flag[0] && (isEarlyMorning() || isLateNight())) {
                         flag[0] = true;
-                        System.out.println("Upstairs - Sensor is on.\n "
-                                + " The distance is: " + distanceFromUpperSensor
+                        System.out.println("Upstairs - Sensor is on. "
+                                + "\n The distance is: " + distanceFromUpperSensor
                                 + "\n Current hour is: " + getCurrentHour()
                                 + "\n earlyMorning is: " + isEarlyMorning()
                                 + "\n and lateNight is: " + isLateNight()
@@ -54,12 +54,12 @@ public class Starter {
                         }
                     }
 
-                    long distanceFromLowerSensor = getDistanceFromSensor(downstairsSensorTriggerPin, downstairsSensorEchoPin);
+                    long distanceFromLowerSensor = getDistanceFromSensor(downstairsSensorTriggerPin, downstairsSensorEchoPin, getCurrentMinute(), "downstairs");
 
                     if (distanceFromLowerSensor <= getLowerDistance() && !flag[0] && (isEarlyMorning() || isLateNight())) {
                         flag[0] = true;
-                        System.out.println("Downstairs - Sensor is on.\n "
-                                + " The distance is: " + distanceFromLowerSensor
+                        System.out.println("Downstairs - Sensor is on. "
+                                + "\n The distance is: " + distanceFromLowerSensor
                                 + "\n Current hour is: " + getCurrentHour()
                                 + "\n earlyMorning is: " + isEarlyMorning()
                                 + "\n and lateNight is: " + isLateNight()
@@ -81,22 +81,36 @@ public class Starter {
         }
     }
 
-    private long getDistanceFromSensor(GpioPinDigitalOutput outputSensorTriggerPin, GpioPinDigitalInput inputSensorEchoPin) throws InterruptedException {
-        outputSensorTriggerPin.high();
-        Thread.sleep((long) 0.01);
-        outputSensorTriggerPin.low();
+    private long getDistanceFromSensor(GpioPinDigitalOutput outputSensorTriggerPin, GpioPinDigitalInput inputSensorEchoPin, String currentMinute, String direction) throws InterruptedException {
+        try {
+            long minutes = Long.parseLong(currentMinute);
 
-        while (inputSensorEchoPin.isLow()) {
+            outputSensorTriggerPin.high();
+            Thread.sleep((long) 0.01);
+            outputSensorTriggerPin.low();
+
+            while (inputSensorEchoPin.isLow()) {
+                if (minutes < Long.parseLong(getCurrentMinute())) {
+                    System.out.println("I am stuck in inputSensorEchoPin.isLow() from " + direction);
+                    return 999L;
+                }
+            }
+
+            long startTimeUpstairs = System.nanoTime();
+
+            while (inputSensorEchoPin.isHigh()) {
+                if (minutes < Long.parseLong(getCurrentMinute())) {
+                    System.out.println("I am stuck in inputSensorEchoPin.isHigh() from " + direction);
+                    return 999L;
+                }
+            }
+            long endTimeUpstairs = System.nanoTime();
+
+            return Math.round((((endTimeUpstairs - startTimeUpstairs) / 1e3) / 2) / 29.1);
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+            return 999L;
         }
-
-        long startTimeUpstairs = System.nanoTime();
-
-        while (inputSensorEchoPin.isHigh()) {
-
-        }
-        long endTimeUpstairs = System.nanoTime();
-
-        return Math.round((((endTimeUpstairs - startTimeUpstairs) / 1e3) / 2) / 29.1);
     }
 
     private static void runOldFunctionUsingPIR() throws InterruptedException {
@@ -166,6 +180,12 @@ public class Starter {
 
     private static String getCurrentHour() {
         SimpleDateFormat sdf = new SimpleDateFormat("HH");
+
+        return (String.valueOf(Integer.parseInt(sdf.format(new Date()))));
+    }
+
+    private static String getCurrentMinute() {
+        SimpleDateFormat sdf = new SimpleDateFormat("mm");
 
         return (String.valueOf(Integer.parseInt(sdf.format(new Date()))));
     }
