@@ -33,7 +33,7 @@ public class Starter {
         while (true) {
             if (isEarlyMorning() || isLateNight()) {
                 try {
-                    long distanceFromUpperSensor = getDistanceFromSensor(upstairsSensorTriggerPin, upstairsSensorEchoPin, getCurrentMinute(), "upstairs");
+                    long distanceFromUpperSensor = getDistanceFromSensor(upstairsSensorTriggerPin, upstairsSensorEchoPin, getCurrentMinute(), getCurrentSeconds(), "upstairs");
 
                     if (distanceFromUpperSensor <= getUpperDistance() && !flag[0] && (isEarlyMorning() || isLateNight())) {
                         flag[0] = true;
@@ -54,7 +54,7 @@ public class Starter {
                         }
                     }
 
-                    long distanceFromLowerSensor = getDistanceFromSensor(downstairsSensorTriggerPin, downstairsSensorEchoPin, getCurrentMinute(), "downstairs");
+                    long distanceFromLowerSensor = getDistanceFromSensor(downstairsSensorTriggerPin, downstairsSensorEchoPin, getCurrentMinute(), getCurrentSeconds(), "downstairs");
 
                     if (distanceFromLowerSensor <= getLowerDistance() && !flag[0] && (isEarlyMorning() || isLateNight())) {
                         flag[0] = true;
@@ -81,17 +81,20 @@ public class Starter {
         }
     }
 
-    private long getDistanceFromSensor(GpioPinDigitalOutput outputSensorTriggerPin, GpioPinDigitalInput inputSensorEchoPin, String currentMinute, String direction) throws InterruptedException {
+    private long getDistanceFromSensor(GpioPinDigitalOutput outputSensorTriggerPin, GpioPinDigitalInput inputSensorEchoPin, String currentMinute, String currentSeconds, String direction) throws InterruptedException {
         try {
             long minutes = Long.parseLong(currentMinute);
+            long seconds = Long.parseLong(currentSeconds);
+            long seconds2 = seconds + 1;
 
             outputSensorTriggerPin.high();
             Thread.sleep((long) 0.01);
             outputSensorTriggerPin.low();
 
             while (inputSensorEchoPin.isLow()) {
-                if (minutes < Long.parseLong(getCurrentMinute())) {
-                    System.out.println("I am stuck in inputSensorEchoPin.isLow() from " + direction);
+//                if ((minutes < Long.parseLong(getCurrentMinute()) || minutes == 59L) || (seconds < Long.parseLong(getCurrentSeconds()) || seconds == 59L)) {
+                if (seconds == seconds2 || seconds == 59L) {
+                    System.out.println("I am stuck in inputSensorEchoPin.isHigh() from " + direction + " in the " + minutes + " minute and " + seconds + " second. --> Second2: " + seconds2);
                     return 999L;
                 }
             }
@@ -99,8 +102,9 @@ public class Starter {
             long startTimeUpstairs = System.nanoTime();
 
             while (inputSensorEchoPin.isHigh()) {
-                if (minutes < Long.parseLong(getCurrentMinute())) {
-                    System.out.println("I am stuck in inputSensorEchoPin.isHigh() from " + direction);
+//                if ((minutes < Long.parseLong(getCurrentMinute()) || minutes == 59L) || (seconds < Long.parseLong(getCurrentSeconds()) || seconds == 59L)) {
+                if (seconds == seconds2 || seconds == 59L) {
+                    System.out.println("I am stuck in inputSensorEchoPin.isHigh() from " + direction + " in the " + minutes + " minute and " + seconds + " second. --> Second2: " + seconds2);
                     return 999L;
                 }
             }
@@ -171,7 +175,7 @@ public class Starter {
     }
 
     private static String getTime() {
-        SimpleDateFormat hm = new SimpleDateFormat("HH:mm dd.MM.yyyy");
+        SimpleDateFormat hm = new SimpleDateFormat("HH:mm:ss dd.MM.yyyy");
 
         Timestamp timestamp = new Timestamp(System.currentTimeMillis());
 
@@ -186,6 +190,12 @@ public class Starter {
 
     private static String getCurrentMinute() {
         SimpleDateFormat sdf = new SimpleDateFormat("mm");
+
+        return (String.valueOf(Integer.parseInt(sdf.format(new Date()))));
+    }
+
+    private static String getCurrentSeconds() {
+        SimpleDateFormat sdf = new SimpleDateFormat("ss");
 
         return (String.valueOf(Integer.parseInt(sdf.format(new Date()))));
     }
