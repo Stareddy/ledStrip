@@ -9,6 +9,8 @@ import java.util.Date;
 
 public class Starter {
 
+
+
     private static GpioPinDigitalOutput upstairsSensorTriggerPin;
     private static GpioPinDigitalInput upstairsSensorEchoPin;
 
@@ -17,8 +19,24 @@ public class Starter {
 
     private final static GpioController gPIO = GpioFactory.getInstance();
 
+    private static PreparedStatement preparedStatement = null;
+
     public static void main(String[] args) throws InterruptedException {
+        deleteLogs();
         new Starter().run();
+//        test();
+    }
+
+    private static void test() {
+        boolean penus = true;
+        long seconds = Long.parseLong(getCurrentSeconds());
+        long seconds2 = seconds + 2;
+        while (penus) {
+            System.out.println("Anzahl der Versuche " + seconds2);
+            if (Long.parseLong(getCurrentSeconds()) == seconds2 || seconds == 59L) {
+                penus = false;
+            }
+        }
     }
 
     private void run() throws InterruptedException {
@@ -37,12 +55,12 @@ public class Starter {
 
                     if (distanceFromUpperSensor <= getUpperDistance() && !flag[0] && (isEarlyMorning() || isLateNight())) {
                         flag[0] = true;
-//                        System.out.println("Upstairs - Sensor is on. "
-//                                + "\n The distance is: " + distanceFromUpperSensor
-//                                + "\n Current hour is: " + getCurrentHour()
-//                                + "\n earlyMorning is: " + isEarlyMorning()
-//                                + "\n and lateNight is: " + isLateNight()
-//                                + "\n at: " + getTime());
+                        insertLogs("executing Python", "Upstairs - Sensor is on. "
+                                + "\n The distance is: " + distanceFromUpperSensor
+                                + "\n Current hour is: " + getCurrentHour()
+                                + "\n earlyMorning is: " + isEarlyMorning()
+                                + "\n and lateNight is: " + isLateNight()
+                                + "\n at: " + getTime());
                         try {
                             Process p = Runtime.getRuntime().exec("python relay_from_upstairs.py");
                             p.waitFor();
@@ -58,12 +76,12 @@ public class Starter {
 
                     if (distanceFromLowerSensor <= getLowerDistance() && !flag[0] && (isEarlyMorning() || isLateNight())) {
                         flag[0] = true;
-//                        System.out.println("Downstairs - Sensor is on. "
-//                                + "\n The distance is: " + distanceFromLowerSensor
-//                                + "\n Current hour is: " + getCurrentHour()
-//                                + "\n earlyMorning is: " + isEarlyMorning()
-//                                + "\n and lateNight is: " + isLateNight()
-//                                + "\n at: " + getTime());
+                        insertLogs("executing Python","Downstairs - Sensor is on. "
+                                + "\n The distance is: " + distanceFromLowerSensor
+                                + "\n Current hour is: " + getCurrentHour()
+                                + "\n earlyMorning is: " + isEarlyMorning()
+                                + "\n and lateNight is: " + isLateNight()
+                                + "\n at: " + getTime());
                         try {
                             Process p = Runtime.getRuntime().exec("python relay_from_downstairs.py");
                             p.waitFor();
@@ -86,28 +104,36 @@ public class Starter {
             Thread.sleep(250);
             long minutes = Long.parseLong(currentMinute);
             long seconds = Long.parseLong(currentSeconds);
-            long seconds2 = seconds + 1;
+            long seconds2 = seconds + 2;
 
             outputSensorTriggerPin.high();
             Thread.sleep((long) 0.01);
             outputSensorTriggerPin.low();
 
             while (inputSensorEchoPin.isLow()) {
-//                if (seconds < Long.parseLong(getCurrentSeconds()) || seconds == 59L) {
-////                if (minutes < Long.parseLong(getCurrentMinute()) || minutes == 59L) {
-//                    System.out.println("I am stuck in inputSensorEchoPin.isHigh() from " + direction + " in the " + minutes + " minute and " + seconds + " second. --> Second2: " + seconds2);
-//                    return 99L;
-//                }
+                if (Long.parseLong(getCurrentSeconds()) == seconds2) {
+//                if (minutes < Long.parseLong(getCurrentMinute()) || minutes == 59L) {
+                    insertLogs("gettingDistanceFromSensor","I am stuck in inputSensorEchoPin.isLow() from "
+                                                                            + direction + " in the "
+                                                                            + minutes + " minute and "
+                                                                            + seconds + " second. "
+                                                                            + "--> Timestamp: " + getTime());
+                    return 99L;
+                }
             }
 
             long startTimeUpstairs = System.nanoTime();
 
             while (inputSensorEchoPin.isHigh()) {
-//                if (seconds < Long.parseLong(getCurrentSeconds()) || seconds == 59L) {
-////                if (minutes < Long.parseLong(getCurrentMinute()) || minutes == 59L) {
-//                    System.out.println("I am stuck in inputSensorEchoPin.isHigh() from " + direction + " in the " + minutes + " minute and " + seconds + " second. --> Second2: " + seconds2);
-//                    return 99L;
-//                }
+                if (Long.parseLong(getCurrentSeconds()) == seconds2) {
+//                if (minutes < Long.parseLong(getCurrentMinute()) || minutes == 59L) {
+                    insertLogs("gettingDistanceFromSensor","I am stuck in inputSensorEchoPin.isHigh() from "
+                                                                            + direction + " in the "
+                                                                            + minutes + " minute and "
+                                                                            + seconds + " second. "
+                                                                            + "--> Timestamp: " + getTime());
+                    return 99L;
+                }
             }
             long endTimeUpstairs = System.nanoTime();
 
@@ -245,6 +271,42 @@ public class Starter {
         int currentHour = Integer.parseInt(sdf.format(new Date()));
 
         return (currentHour >= setFirstMorningTimeInDB && currentHour <= setSecondMorningTimeInDB);
+    }
+
+    private static void insertLogs(String direction, String output) {
+        try {
+            Class.forName("com.mysql.jdbc.Driver");
+
+            Connection conn = DriverManager
+                    .getConnection(URI, userName, passWord);
+
+            preparedStatement = conn.prepareStatement("insert into ledStrip.logs (direction, output) values (?,?)");
+            preparedStatement.setString(1, direction);
+            preparedStatement.setString(2, output);
+            preparedStatement.executeUpdate();
+
+        } catch (ClassNotFoundException e) {
+            e.printStackTrace();
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+    }
+
+    private static void deleteLogs() {
+        try {
+            Class.forName("com.mysql.jdbc.Driver");
+
+            Connection conn = DriverManager
+                    .getConnection(URI, userName, passWord);
+
+            preparedStatement = conn.prepareStatement("DELETE FROM ledStrip.logs");
+            preparedStatement.executeUpdate();
+
+        } catch (ClassNotFoundException e) {
+            e.printStackTrace();
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
     }
 
     private static ResultSet getHours() {
