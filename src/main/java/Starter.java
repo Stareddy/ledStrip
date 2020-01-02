@@ -111,13 +111,15 @@ public class Starter {
             outputSensorTriggerPin.low();
 
             while (inputSensorEchoPin.isLow()) {
-                if (Long.parseLong(getCurrentSeconds()) == seconds2) {
+                if (Long.parseLong(getCurrentSeconds()) == seconds2 || seconds2 >= 60L) {
 //                if (minutes < Long.parseLong(getCurrentMinute()) || minutes == 59L) {
-                    insertLogs("gettingDistanceFromSensor","I am stuck in inputSensorEchoPin.isLow() from "
-                                                                            + direction + " in the "
-                                                                            + minutes + " minute and "
-                                                                            + seconds + " second. "
-                                                                            + "--> Timestamp: " + getTime());
+                    if (seconds2 < 60L) {
+                        insertLogs("gettingDistanceFromSensor", "I am stuck in inputSensorEchoPin.isLow() from "
+                                + direction + " in the "
+                                + minutes + " minute and "
+                                + seconds + " second. "
+                                + "--> Timestamp: " + getTime());
+                    }
                     return 99L;
                 }
             }
@@ -125,13 +127,15 @@ public class Starter {
             long startTimeUpstairs = System.nanoTime();
 
             while (inputSensorEchoPin.isHigh()) {
-                if (Long.parseLong(getCurrentSeconds()) == seconds2) {
+                if (Long.parseLong(getCurrentSeconds()) == seconds2 || seconds2 >= 60L) {
 //                if (minutes < Long.parseLong(getCurrentMinute()) || minutes == 59L) {
-                    insertLogs("gettingDistanceFromSensor","I am stuck in inputSensorEchoPin.isHigh() from "
-                                                                            + direction + " in the "
-                                                                            + minutes + " minute and "
-                                                                            + seconds + " second. "
-                                                                            + "--> Timestamp: " + getTime());
+                    if (seconds2 < 60L) {
+                        insertLogs("gettingDistanceFromSensor", "I am stuck in inputSensorEchoPin.isHigh() from "
+                                + direction + " in the "
+                                + minutes + " minute and "
+                                + seconds + " second. "
+                                + "--> Timestamp: " + getTime());
+                    }
                     return 99L;
                 }
             }
