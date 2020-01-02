@@ -37,12 +37,12 @@ public class Starter {
 
                     if (distanceFromUpperSensor <= getUpperDistance() && !flag[0] && (isEarlyMorning() || isLateNight())) {
                         flag[0] = true;
-                        System.out.println("Upstairs - Sensor is on. "
-                                + "\n The distance is: " + distanceFromUpperSensor
-                                + "\n Current hour is: " + getCurrentHour()
-                                + "\n earlyMorning is: " + isEarlyMorning()
-                                + "\n and lateNight is: " + isLateNight()
-                                + "\n at: " + getTime());
+//                        System.out.println("Upstairs - Sensor is on. "
+//                                + "\n The distance is: " + distanceFromUpperSensor
+//                                + "\n Current hour is: " + getCurrentHour()
+//                                + "\n earlyMorning is: " + isEarlyMorning()
+//                                + "\n and lateNight is: " + isLateNight()
+//                                + "\n at: " + getTime());
                         try {
                             Process p = Runtime.getRuntime().exec("python relay_from_upstairs.py");
                             p.waitFor();
@@ -58,12 +58,12 @@ public class Starter {
 
                     if (distanceFromLowerSensor <= getLowerDistance() && !flag[0] && (isEarlyMorning() || isLateNight())) {
                         flag[0] = true;
-                        System.out.println("Downstairs - Sensor is on. "
-                                + "\n The distance is: " + distanceFromLowerSensor
-                                + "\n Current hour is: " + getCurrentHour()
-                                + "\n earlyMorning is: " + isEarlyMorning()
-                                + "\n and lateNight is: " + isLateNight()
-                                + "\n at: " + getTime());
+//                        System.out.println("Downstairs - Sensor is on. "
+//                                + "\n The distance is: " + distanceFromLowerSensor
+//                                + "\n Current hour is: " + getCurrentHour()
+//                                + "\n earlyMorning is: " + isEarlyMorning()
+//                                + "\n and lateNight is: " + isLateNight()
+//                                + "\n at: " + getTime());
                         try {
                             Process p = Runtime.getRuntime().exec("python relay_from_downstairs.py");
                             p.waitFor();
@@ -83,6 +83,7 @@ public class Starter {
 
     private long getDistanceFromSensor(GpioPinDigitalOutput outputSensorTriggerPin, GpioPinDigitalInput inputSensorEchoPin, String currentMinute, String currentSeconds, String direction) throws InterruptedException {
         try {
+            Thread.sleep(250);
             long minutes = Long.parseLong(currentMinute);
             long seconds = Long.parseLong(currentSeconds);
             long seconds2 = seconds + 1;
@@ -92,28 +93,28 @@ public class Starter {
             outputSensorTriggerPin.low();
 
             while (inputSensorEchoPin.isLow()) {
-//                if ((minutes < Long.parseLong(getCurrentMinute()) || minutes == 59L) || (seconds < Long.parseLong(getCurrentSeconds()) || seconds == 59L)) {
-                if (seconds == seconds2 || seconds == 59L) {
-                    System.out.println("I am stuck in inputSensorEchoPin.isHigh() from " + direction + " in the " + minutes + " minute and " + seconds + " second. --> Second2: " + seconds2);
-                    return 999L;
-                }
+//                if (seconds < Long.parseLong(getCurrentSeconds()) || seconds == 59L) {
+////                if (minutes < Long.parseLong(getCurrentMinute()) || minutes == 59L) {
+//                    System.out.println("I am stuck in inputSensorEchoPin.isHigh() from " + direction + " in the " + minutes + " minute and " + seconds + " second. --> Second2: " + seconds2);
+//                    return 99L;
+//                }
             }
 
             long startTimeUpstairs = System.nanoTime();
 
             while (inputSensorEchoPin.isHigh()) {
-//                if ((minutes < Long.parseLong(getCurrentMinute()) || minutes == 59L) || (seconds < Long.parseLong(getCurrentSeconds()) || seconds == 59L)) {
-                if (seconds == seconds2 || seconds == 59L) {
-                    System.out.println("I am stuck in inputSensorEchoPin.isHigh() from " + direction + " in the " + minutes + " minute and " + seconds + " second. --> Second2: " + seconds2);
-                    return 999L;
-                }
+//                if (seconds < Long.parseLong(getCurrentSeconds()) || seconds == 59L) {
+////                if (minutes < Long.parseLong(getCurrentMinute()) || minutes == 59L) {
+//                    System.out.println("I am stuck in inputSensorEchoPin.isHigh() from " + direction + " in the " + minutes + " minute and " + seconds + " second. --> Second2: " + seconds2);
+//                    return 99L;
+//                }
             }
             long endTimeUpstairs = System.nanoTime();
 
             return Math.round((((endTimeUpstairs - startTimeUpstairs) / 1e3) / 2) / 29.1);
         } catch (InterruptedException e) {
             e.printStackTrace();
-            return 999L;
+            return 99L;
         }
     }
 
