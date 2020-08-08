@@ -101,7 +101,7 @@ public class Starter {
 
     private long getDistanceFromSensor(GpioPinDigitalOutput outputSensorTriggerPin, GpioPinDigitalInput inputSensorEchoPin, String currentMinute, String currentSeconds, String direction) throws InterruptedException {
         try {
-            Thread.sleep(250);
+            Thread.sleep(30);
             long minutes = Long.parseLong(currentMinute);
             long seconds = Long.parseLong(currentSeconds);
             long seconds2 = seconds + 2;
