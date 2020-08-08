@@ -24,22 +24,9 @@ public class Starter {
     public static void main(String[] args) throws InterruptedException {
         deleteLogs();
         new Starter().run();
-//        test();
     }
 
-    private static void test() {
-        boolean penus = true;
-        long seconds = Long.parseLong(getCurrentSeconds());
-        long seconds2 = seconds + 2;
-        while (penus) {
-            System.out.println("Anzahl der Versuche " + seconds2);
-            if (Long.parseLong(getCurrentSeconds()) == seconds2 || seconds == 59L) {
-                penus = false;
-            }
-        }
-    }
-
-    private void run() throws InterruptedException {
+    private void run() {
         final boolean[] flag = {false};
 
         upstairsSensorTriggerPin = gPIO.provisionDigitalOutputPin(RaspiPin.GPIO_00);
