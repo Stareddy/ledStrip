@@ -9,7 +9,7 @@ import java.util.Date;
 
 public class Starter {
 
-
+    private static String URI = "jdbc:mysql://localhost/ledStrip?";
 
     private static GpioPinDigitalOutput upstairsSensorTriggerPin;
     private static GpioPinDigitalInput upstairsSensorEchoPin;
